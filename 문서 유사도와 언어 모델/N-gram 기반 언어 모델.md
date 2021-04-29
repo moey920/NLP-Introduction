@@ -42,3 +42,52 @@
     따라서 다음 단어로 '날씨'를 선택하여 '무더운 여름 날씨' 가 생성된다.
     …
 
+### N-gram 언어 모델
+
+이번 실습에서는 변수 data에 주어진 문장을 사용해서 간단한 bi-gram 기반 언어 모델을 직접 만들어 볼 예정입니다.
+
+```
+data = ['this is a dog', 'this is a cat', 'this is my horse','my name is elice', 'my name is hank']
+
+def count_unigram(docs):
+    unigram_counter = dict()
+    # docs에서 발생하는 모든 unigram의 빈도수를 딕셔너리 unigram_counter에 저장하여 반환하세요.
+    for doc in docs :
+        for word in doc.split() :
+            if word not in unigram_counter :
+                unigram_counter[word] = 1
+            else :
+                unigram_counter[word] += 1
+    return unigram_counter
+
+def count_bigram(docs):
+    bigram_counter = dict()
+    # docs에서 발생하는 모든 bigram의 빈도수를 딕셔너리 bigram_counter에 저장하여 반환하세요.
+    for doc in docs :
+        # zip(리스트 1, 리스트 2) 함수를 사용하면, [((리스트 1의 원소), (리스트 2의 원소))]와 같이 두 리스트를 하나의 리스트로 만들 수 있습니다.
+        words = doc.split()
+        for word1, word2 in zip(words, words[1:]) :
+            if (word1, word2) not in bigram_counter :
+                bigram_counter[(word1, word2)] = 1
+            else :
+                bigram_counter[(word1, word2)] += 1
+    
+    return bigram_counter
+
+# 입력되는 문장의 발생 확률을 계산, 예측할 문장, unigram의 빈도수 딕셔너리, bigram의 빈도수 딕셔너리를 인자로 받습니다.
+def cal_prob(sent, unigram_counter, bigram_counter):
+    words = sent.split()
+    result = 1.0
+    # sent의 발생 확률을 계산하여 변수 result에 저장 후 반환하세요.
+    for word1, word2 in zip(words, words[1:]) :
+        top = bigram_counter[(word1, word2)]
+        bottom = unigram_counter[word1]
+        result *= float(top/bottom)
+    
+    return result
+
+# 주어진data를 이용해 unigram 빈도수, bigram 빈도수를 구하고 "this is elice" 문장의 발생 확률을 계산해봅니다.
+unigram_counter = count_unigram(data)
+bigram_counter = count_bigram(data)
+print(cal_prob("this is elice", unigram_counter, bigram_counter))
+```
