@@ -100,60 +100,36 @@ word_extractor = WordExtractor()
 words = word_extractor.train_extract(train_data) # [클린턴, 트럼프, 프로그램 ...
 ```
 
-문장 유사도
-04
-문장 간 유사도는 공통된 단어 혹은 의미를 기반으로 계산
-04
-문장 유사도
-문장 유사도
-[문장 1] : 오늘은 중부지방을 중심으로 소나기가 예상됩니다.
-[문장 2] : 오늘은 전국이 맑은 날씨가 예상됩니다.
-[문장 3] : 앞으로 접종 속도는 빨라질 것으로 예상됩니다.
-자카드(Jaccard) 지수는 문장 간 공통된 단어의 비율로 문장 간 유사도를 정의
-04
-자카드 지수
-문장 유사도
-문장 1과 문장 2의 유사도 =
-(두 문장 내 공통된 단어의 종류)
-(두 문장 내 모든 단어의 종류)
-자카드 지수는 문장 간 유사도를 0 ~ 1 사이로 정의
-04
-자카드 지수
-문장 유사도
-[문장 1] : 오늘은 중부지방을 중심으로 소나기가 예상됩니다.
-[문장 2] : 오늘은 전국이 맑은 날씨가 예상됩니다.
-문장 1과 문장 2의 유사도 =
-2
-8
-= 0.25
-코사인 유사도는 문장 벡터 간의 각도를 기반으로 계산
-04
-코사인 유사도
-문장 유사도
-문장 1
-문장 3
-문장 2
-벡터 간의 각도는 벡터 간 내적을 사용해서 계산
-04
-코사인 유사도
-문장 유사도
-A = [1, 3], B = [0 ,2]
-A와 B의 코사인 유사도 =
-A ∙ B
-𝐴 B
-=
-1 × 0 + (3 × 2)
-1
-2 + 3
-2 × 0
-2 + 2
-2
-=
-6
-2 10
-≈ 0.9487
-유클리드 거리와 같은 다양한 거리 지표가 존재
-04
-코사인 유사도
-문장 유사도
-코사인 유사도는 고차원의 공간에서 벡터 간의 유사성을 잘 보존하는 장점이 있음
+### soynlp를 통한 한국어 전처리
+
+soynlp는 한국어 단어 추출 중 발생할 수 있는 미등록 단어 문제를 해결할 수 있는 전처리 라이브러리입니다. soynlp는 학습 데이터에서 자주 발생하는 패턴을 기반으로 단어의 경계선을 구분하여 단어를 추출합니다.
+
+이번 실습에서는 신문 기사를 학습 데이터로 사용하여 명사 목록을 학습한 뒤, 주어진 문장에서 명사를 추출할 예정입니다.
+
+```
+from soynlp.utils import DoublespaceLineCorpus
+from soynlp.noun import LRNounExtractor_v2
+
+sent = '트와이스 아이오아이 좋아여 tt가 저번에 1위 했었죠?'
+
+# 학습에 사용할 데이터가 train_data에 저장되어 있습니다.
+corpus_path = 'articles.txt'
+train_data = DoublespaceLineCorpus(corpus_path)
+print("학습 문서의 개수: %d" %(len(train_data)))
+
+# LRNounExtractor_v2 객체를 이용해 train_data에서 명사로 추정되는 단어를 nouns 변수에 저장하세요.
+noun_extr = LRNounExtractor_v2()
+nouns = noun_extr.train_extract(train_data) # 명사가 학습데이터에서 추출된다.
+
+# 생성된 명사의 개수를 확인해봅니다.
+print(len(nouns))
+
+# 생성된 명사 목록을 사용해서 sent에 주어진 문장에서 명사를 sent_nouns 리스트에 저장하세요.
+sent_nouns = []
+for word in sent.split() :
+    if word in nouns :
+        sent_nouns.append(word)
+
+print(sent_nouns)
+# ['트와이스', '아이오아이', '1위']
+```
